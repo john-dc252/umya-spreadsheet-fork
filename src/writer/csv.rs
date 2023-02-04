@@ -79,8 +79,8 @@ pub fn write_writer<W: io::Seek + io::Write>(
         data += "\r\n";
     }
 
-    // encording.
-    let mut res_into: Vec<u8> = Vec::new();
+    // encoding
+    let res_into: Vec<u8>;
     let data_bytes = match option.get_csv_encode_value() {
         &CsvEncodeValues::ShiftJis => {
             let (res, _, _) = encoding_rs::SHIFT_JIS.encode(&data);

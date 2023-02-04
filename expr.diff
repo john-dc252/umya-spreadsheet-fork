@@ -1,0 +1,91 @@
+diff --git a/src/structs/int16_value.rs b/src/structs/int16_value.rs
+index 4eae39d..0b4c486 100644
+--- a/src/structs/int16_value.rs
++++ b/src/structs/int16_value.rs
+@@ -1,21 +1,14 @@
+ #[derive(Clone, Default, Debug)]
+ pub struct Int16Value {
+-    value: Option<i16>,
++    _value: Option<i16>,
+ }
+ impl Int16Value {
+-    pub(crate) fn _get_value(&self) -> &i16 {
+-        match &self.value {
+-            Some(v) => v,
+-            None => &0,
+-        }
+-    }
+-
+     pub(crate) fn _get_value_string(&self) -> String {
+-        self._get_value().to_string()
++        self._value.unwrap_or_default().to_string()
+     }
+ 
+     pub(crate) fn _set_value(&mut self, value: i16) -> &mut Int16Value {
+-        self.value = Some(value);
++        self._value = Some(value);
+         self
+     }
+ 
+@@ -24,16 +17,11 @@ impl Int16Value {
+     }
+ 
+     pub(crate) fn _has_value(&self) -> bool {
+-        match &self.value {
+-            Some(_) => true,
+-            None => false,
+-        }
++        self._value.is_some()
+     }
+ 
+     pub(crate) fn _get_hash_string(&self) -> String {
+-        if self._has_value() {
+-            return self._get_value_string();
+-        }
+-        String::from("empty!!")
++        self._value
++            .map_or_else(|| String::from("empty!!"), |v| v.to_string())
+     }
+ }
+diff --git a/src/structs/u_int16_value.rs b/src/structs/u_int16_value.rs
+index 6bfb9fc..8b80d5b 100644
+--- a/src/structs/u_int16_value.rs
++++ b/src/structs/u_int16_value.rs
+@@ -4,10 +4,7 @@ pub struct UInt16Value {
+ }
+ impl UInt16Value {
+     pub(crate) fn get_value(&self) -> &u16 {
+-        match &self.value {
+-            Some(v) => v,
+-            None => &0,
+-        }
++        self.value.as_ref().unwrap_or(&0)
+     }
+ 
+     pub(crate) fn get_value_string(&self) -> String {
+@@ -24,9 +21,6 @@ impl UInt16Value {
+     }
+ 
+     pub(crate) fn _has_value(&self) -> bool {
+-        match &self.value {
+-            Some(_) => true,
+-            None => false,
+-        }
++        self.value.is_some()
+     }
+ }
+diff --git a/src/writer/csv.rs b/src/writer/csv.rs
+index ca7f01c..f2a608b 100644
+--- a/src/writer/csv.rs
++++ b/src/writer/csv.rs
+@@ -79,8 +79,8 @@ pub fn write_writer<W: io::Seek + io::Write>(
+         data += "\r\n";
+     }
+ 
+-    // encording.
+-    let mut res_into: Vec<u8> = Vec::new();
++    // encoding
++    let res_into: Vec<u8>;
+     let data_bytes = match option.get_csv_encode_value() {
+         &CsvEncodeValues::ShiftJis => {
+             let (res, _, _) = encoding_rs::SHIFT_JIS.encode(&data);
